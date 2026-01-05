@@ -84,6 +84,7 @@ func main() {
 		fmt.Printf(" %3d ", data[42])
 		fmt.Printf(" %3d ", data[43])
 		p := fmt.Sprintf("%08b", data[37])
+		o := fmt.Sprintf("%08b", data[36])
 		if p[0] == '1' {
 			print("X")
 		} else {
@@ -125,10 +126,12 @@ func main() {
 			print("  ")
 		}
 		c <- Data{
-			leftX:  int(data[40]),
-			leftY:  int(data[41]),
-			rightX: int(data[42]),
-			rightY: int(data[43]),
+			leftX:         int(data[40]),
+			leftY:         int(data[41]),
+			rightX:        int(data[42]),
+			rightY:        int(data[43]),
+			FirstButtons:  p,
+			SecondButtons: o,
 		}
 		time.Sleep(10 * time.Millisecond)
 
