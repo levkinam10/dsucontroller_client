@@ -9,20 +9,10 @@ import (
 	"time"
 )
 
-type Flags uint8
-
-const (
-	X Flags = 1 << (7 - iota)
-	A
-	B
-	Y
-	RB
-	LB
-	RT
-	LT
-)
-
 func main() {
+	c := make(chan Data)
+	go Gamepad(c)
+	//return
 	serverAddr, _ := net.ResolveUDPAddr("udp", "192.168.0.133:26760")
 	conn, err := net.DialUDP("udp", nil, serverAddr)
 	if err != nil {
@@ -93,7 +83,6 @@ func main() {
 		fmt.Printf(" %3d ", data[41])
 		fmt.Printf(" %3d ", data[42])
 		fmt.Printf(" %3d ", data[43])
-		fmt.Printf("%b", byte(X|Y) == data[37])
 		p := fmt.Sprintf("%08b", data[37])
 		if p[0] == '1' {
 			print("X")
@@ -135,8 +124,13 @@ func main() {
 		} else {
 			print("  ")
 		}
+		c <- Data{
+			leftX:  int(data[40]),
+			leftY:  int(data[41]),
+			rightX: int(data[42]),
+			rightY: int(data[43]),
+		}
 		time.Sleep(10 * time.Millisecond)
-		//fmt.Printf("Получено %d байт: % X\n", n, buf[:n])
 
 	}
 	//send2 =
