@@ -11,8 +11,10 @@ import (
 
 func main() {
 	c := make(chan Data)
-	go Gamepad(c)
-	//return
+	//go Gamepad(c)
+	//gamepad1()
+	c_pad()
+	return
 	serverAddr, _ := net.ResolveUDPAddr("udp", "192.168.0.133:26760")
 	conn, err := net.DialUDP("udp", nil, serverAddr)
 	if err != nil {

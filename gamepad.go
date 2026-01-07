@@ -2,16 +2,46 @@ package main
 
 import (
 	"github.com/bendahl/uinput"
+	"github.com/holoplot/go-evdev"
+	"time"
 	//"testing/quick"
 )
 
+/*
+#cgo pkg-config: libevdev
+#include <libevdev/libevdev-uinput.h>
+#include <libevdev/libevdev.h>
+#include <linux/input-event-codes.h>
+#include <linux/input.h>
+#include <unistd.h>
+#include<gamepad.h>
+*/
+import "C"
+
+func c_pad() {
+	uidev := C.create_controller()
+	defer C.destroy_device(uidev)
+	for {
+		C.btn_down(uidev, C.uint(evdev.BTN_A))
+		C.syn(uidev)
+		time.Sleep(5 * time.Second)
+		C.btn_up(uidev, C.uint(evdev.BTN_A))
+		C.syn(uidev)
+		time.Sleep(5 * time.Second)
+
+	}
+
+}
 func Gamepad(c chan Data) {
-	gamepad, _ := uinput.CreateGamepad("/dev/uinput", []byte("DSU"), uint16(0x045e), uint16(0x028e))
+	gamepad, _ := uinput.CreateGamepad("/dev/uinput", []byte("DSU"), uint16(0x1234), uint16(0x5678))
 
 	for {
+		// Works correct only with Steam Input
 		data := <-c
-		gamepad.LeftStickMove(float32(data.leftX-127)/127, float32(data.leftY-127)/127)
-		gamepad.RightStickMove(float32(data.rightX-127)/127, float32(data.rightY-127)/127)
+		gamepad.LeftStickMove((float32(data.leftX-127)/127)*1, (float32(data.leftY-127)/127)*1)
+
+		gamepad.RightStickMoveX(float32(data.rightX-127) / 127)
+		gamepad.RightStickMoveY(float32(data.rightY-127) / 127)
 
 		if data.FirstButtons[0] == '1' {
 			gamepad.ButtonDown(uinput.ButtonNorth)
@@ -47,6 +77,7 @@ func Gamepad(c chan Data) {
 		}
 		if data.FirstButtons[6] == '1' {
 			gamepad.ButtonDown(uinput.ButtonTriggerRight)
+
 		} else {
 			gamepad.ButtonUp(uinput.ButtonTriggerRight)
 		}
